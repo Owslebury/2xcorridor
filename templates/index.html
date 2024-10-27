@@ -12,12 +12,36 @@
         <div id="options" class="mb-3">Selected: </div>
         <button type="button" class="btn btn-outline-dark" id="button1">1</button>
         <button type="button" class="btn btn-outline-dark" id="button2">2</button>
-        <div class="mt-3">
-            <input type="text" id="noteInput" class="form-control d-inline-block" style="width: 250px;" placeholder="Add a note for this combination" />
-            <button id="saveNote" class="btn btn-primary ml-2">Save Note</button>
+
+        <!-- Explanatory text -->
+        <div id="explanation" class="mt-5">
+            <h2 class="text-primary text-center">Welcome</h2>
+            <div class="container text-center mt-3">
+                <div class="row">
+                    <div class="col-md-6 mx-auto">
+                        <p class="lead">
+                            This page allows you to navigate through doors labeled "1" and "2." If you discover a combination that hasn’t yet received a message, you have the opportunity to add your own. One message per IP address.
+                        </p>
+                        <p class="lead">Currently, there are <strong>{{ total_notes }}</strong> messages.</p> <!-- Display the total notes -->
+                    </div>
+                </div>
+            </div>
         </div>
-        <div id="notes" class="mt-3"></div>
+        
+        
+
+        <!-- Note input section -->
+        <div id="noteSection" class="mt-3" style="display: none;">
+    <div class="d-flex align-items-center justify-content-center">
+        <input type="text" id="noteInput" class="form-control" style="width: 250px;" placeholder="Add a note for this combination" maxlength="500"/>
+        <button id="saveNote" class="btn btn-primary ml-2">Save Note</button>
     </div>
+</div>
+
+        
+
+        <div id="notes" class="mt-3 p-2 bg-light" style="max-height: 200px; overflow-y: auto; overflow-wrap: break-word;"></div>
+        </div>
     <script>
         let selectedOptions = [];
 
@@ -32,8 +56,12 @@
                 
                 const combination = selectedOptions.join('');
                 displayNoteForCombination(combination);
+                
+                // Show the note input section and explanation text
+                document.getElementById('noteSection').style.display = 'block';
+                document.getElementById('explanation').style.display = 'none';
             } else {
-                alert('You\'ve reached our current limit!');
+                alert('You\'ve reached the current combination limit.');
             }
         }
 
@@ -76,7 +104,7 @@
                 notesDiv.innerHTML = '<h3>Note:</h3>';
 
                 if (data.note) {
-                    notesDiv.innerHTML += `${data.note} (IP: ${data.ip}, Time: ${data.created_at})</p>`;
+                    notesDiv.innerHTML += `${data.note}<br>(IP: ${data.ip}, Time: ${data.created_at})</p>`;
                 } else {
                     notesDiv.innerHTML += `<p>No note for this combination.</p>`;
                 }

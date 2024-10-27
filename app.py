@@ -20,7 +20,9 @@ with app.app_context():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    total_notes = Note.query.count()  # Get the total number of notes
+    return render_template('index.html', total_notes=total_notes)  # Pass it to the template
+
 
 @app.route('/save_note', methods=['POST'])
 def save_note():
@@ -34,6 +36,9 @@ def save_note():
     # Check if the combination length exceeds 20 characters
     if len(combination) > 20:
         return jsonify({'success': False, 'message': 'Combination cannot exceed 20 digits.'}), 400
+    
+    if len(note_text) > 500:
+        return jsonify({'success': False, 'message': 'Note cannot exceed 500 characters.'}), 400
 
     # Check if the combination already exists
     if Note.query.filter_by(combination=combination).first():
