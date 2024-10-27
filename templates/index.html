@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Button Tracker</h1>
+    <div id="options">Selected: </div>
+    <button id="button1">Button 1</button>
+    <button id="button2">Button 2</button>
+    <div>
+        <input type="text" id="noteInput" placeholder="Add a note for this combination" />
+        <button id="saveNote">Save Note</button>
+    </div>
+    <div id="notes"></div>
+    <script>
+        let selectedOptions = [];
+
+        document.getElementById('button1').addEventListener('click', () => handleButtonPress('1'));
+        document.getElementById('button2').addEventListener('click', () => handleButtonPress('2'));
+        document.getElementById('saveNote').addEventListener('click', saveNote);
+
+        function handleButtonPress(option) {
+    selectedOptions.push(option);
+    updateOptionsDisplay();
+    
+    const combination = selectedOptions.join('->');
+    displayNoteForCombination(combination);
+}
+
+
+        function updateOptionsDisplay() {
+            document.getElementById('options').innerText = 'Selected: ' + selectedOptions.join('->');
+        }
+
+        function saveNote() {
+    const combination = selectedOptions.join('->');
+    const noteInput = document.getElementById('noteInput').value;
+
+    if (noteInput === '') {
+        alert('Please enter a note.');
+        return;
+    }
+
+    fetch('/save_note', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ combination: combination, note: noteInput })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('noteInput').value = '';
+            displayNoteForCombination(combination);
+        } else {
+            alert(data.message);
+        }
+    });
+}
+
+function displayNoteForCombination(combination) {
+    fetch(`/get_notes?combination=${encodeURIComponent(combination)}`)
+    .then(response => response.json())
+    .then(data => {
+        const notesDiv = document.getElementById('notes');
+        notesDiv.innerHTML = '<h3>Note:</h3>';
+
+        if (data.note) {
+            notesDiv.innerHTML += `<p>${combination}: ${data.note}</p>`;
+        } else {
+            notesDiv.innerHTML += `<p>No note for this combination.</p>`;
+        }
+    });
+}
+
+
+    </script>
+</body>
+</html>
