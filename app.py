@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import re
+import html
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///notes.db'
@@ -32,6 +34,9 @@ def save_note():
     
     # Automatically retrieve the client IP address
     ip = request.remote_addr  # Get the IP address from the request
+
+    combination = re.sub(r'[^a-zA-Z0-9]', '', combination)  # Allow only alphanumeric characters
+    note_text = html.escape(note_text)  # Escape HTML characters
 
     # Check if the combination length exceeds 20 characters
     if len(combination) > 20:
